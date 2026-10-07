@@ -7,6 +7,10 @@ PARCHE = correcciones sin efecto en resultados.
 
 ## [Unreleased]
 
+### Cambiado
+- `versionado.sh init` fija `core.eol=lf` y `core.autocrlf=false` para no reescribir archivos con
+  CRLF dentro de Google Drive.
+
 ## [v1.0.0] - 2026-10-07
 
 ### Agregado

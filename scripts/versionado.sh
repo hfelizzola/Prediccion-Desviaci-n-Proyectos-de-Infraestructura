@@ -93,6 +93,9 @@ cmd_init() {
     git init -b "$MAIN_BRANCH"
   fi
   git config core.longpaths true
+  # LF en la copia de trabajo: evita reescrituras CRLF en Drive y diffs falsos frente a Colab/Linux
+  git config core.autocrlf false
+  git config core.eol lf
   git config user.name >/dev/null || die "Configura tu nombre: git config --global user.name \"Tu Nombre\""
   git config user.email >/dev/null || die "Configura tu correo: git config --global user.email tu@correo"
   install_hook
