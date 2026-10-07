@@ -99,7 +99,7 @@ accidental de código.
 - [x] Manifiesto SHA-256 de datos y modelos; tag `v1.0.0`.
 - [x] Push a GitHub privado (`hfelizzola/Prediccion-Desviaci-n-Proyectos-de-Infraestructura`).
 - [ ] Subir `dist/v1.0.0-artifacts.tar.gz` como asset del release (o a Zenodo con acceso restringido).
-- [ ] **Rotar la contraseña de datos.gov.co**: estuvo en texto plano en Drive.
+- [x] Rotar la contraseña de datos.gov.co (estuvo en texto plano en Drive).
 
 ### Fase 1 — Fundaciones de ingeniería → `v1.1.0` (sin cambiar resultados)
 - [ ] `pyproject.toml` con dependencias mínimas y versiones fijadas (incluido `pandas<3` mientras exista `select_dtypes(['object'])`), lock con `uv`. Entorno idéntico en local y en Colab (`uv pip install -e .`).

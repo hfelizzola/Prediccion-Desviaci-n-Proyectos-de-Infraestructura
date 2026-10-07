@@ -20,7 +20,7 @@ MAIN_BRANCH="main"
 MANIFEST_DIR="MANIFEST"
 MANIFEST_FILE="$MANIFEST_DIR/artifacts.sha256"
 MANIFEST_INFO="$MANIFEST_DIR/artifacts.info"
-DIST_DIR="dist"
+DIST_DIR="${VERSIONADO_DIST:-dist}"   # p. ej. VERSIONADO_DIST=~/Downloads para no ocupar espacio en Drive
 # Carpetas cuyos archivos ignorados se consideran artefactos de la versión
 ARTIFACT_PATHS=("Data" "Models" "Models V2" "terridata" "Parameters")
 MAX_FILE_MB=50     # bloquea archivos versionados más grandes que esto
