@@ -1,0 +1,37 @@
+# =============================================================================
+# Variable groups of the training table (thesis research question 2).
+# The order of the lists defines the column order of the training table.
+# =============================================================================
+
+id_columns: [uid, buyerName, buyerId, contractYearSigned]
+
+groups:
+  G1:
+    label: Project
+    description: Project and procurement characteristics known at contract signing.
+    columns: [contractValueMw, contractDurationDays, projectIntensityMw, workCategory,
+              prebidValueMw, bidContractRatio, contractMethodType, contractMonthSigned,
+              contractMonthStart, electoralYear, preelectoralYear, databaseSource]
+  G2:
+    label: Owner
+    description: Contracting entity attributes and historical indicators (previous year).
+    columns: [ownerLevel, ownerDepartment, ownerRegion, histHHINumProject,
+              histHHIValueProject, histPctDesvTiempo, histPctDesvCost,
+              histPctDesvTimeAndCost, histPctDirectContracts, histPctTenderContracts,
+              totalCumContracts, histAvgProjectIntensity, histAvgBidRatio,
+              histAvgTimeDeviation, histAvgCostDeviation, histAvgContractValue,
+              histAvgContractDuration, penaltiesAccumulated, penaltiesRecent]
+  G3:
+    label: Contractor
+    description: Contractor attributes.
+    columns: [isSME, isBusinessGroup, contractorDepartment, contractorRegion]
+  G4:
+    label: Terridata
+    description: Territorial institutional and economic indicators (TerriData, DNP).
+    columns: [managementComponent, openGovernmentTransparency, gdp, gdpPerCapita,
+              gdpByEconomicActivityConstruction]
+  G5:
+    label: Outcome
+    description: Response variables.
+    columns: [haveCostDeviation, haveTimeDeviation, haveTimeAndCostDeviation,
+              costDeviationPerc, timeDeviationPerc]

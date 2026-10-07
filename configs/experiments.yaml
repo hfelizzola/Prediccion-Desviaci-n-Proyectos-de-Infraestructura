@@ -1,0 +1,57 @@
+# =============================================================================
+# Experimental design: sample, scenarios, models, tuning and evaluation.
+# Values reproduce the thesis version (v1.0.0).
+# =============================================================================
+
+seed: 42
+
+# Applied to the training table before modelling.
+sample_filters:
+  min_contract_value_mw: 1000     # contractValueMw >= 1000 minimum wages
+  min_buyer_history: 5            # totalCumContracts >= 5 previous contracts
+
+# Variables removed after the correlated-variable "tournament" of the thesis
+# (5-fold CV of XGBoost on haveCostDeviation, notebooks/tesis_v1).
+dropped_variables:
+  G1: [prebidValueMw, contractValueMw]
+  G2: [histHHINumProject, histPctDesvTimeAndCost, histAvgCostDeviation,
+       histAvgTimeDeviation, histAvgContractDuration, histAvgProjectIntensity,
+       penaltiesAccumulated, ownerRegion]
+  G3: [contractorRegion]
+  G4: [gdp]
+
+scenarios:
+  S1: {label: Project, groups: [G1]}
+  S2: {label: Project + Owner, groups: [G1, G2]}
+  S3: {label: Project + Contractor, groups: [G1, G3]}
+  S4: {label: Project + Terridata, groups: [G1, G4]}
+  S5: {label: All, groups: [G1, G2, G3, G4]}
+
+targets:
+  cost: haveCostDeviation
+  time: haveTimeDeviation
+
+# Keys of secop_dev.models.search_spaces.MODELS
+models: [lr, rf, xgb, knn]
+
+split:
+  test_size: 0.3
+  stratify: true
+
+tuning:
+  n_trials: 30
+  cv_folds: 5
+  scoring: roc_auc
+  direction: maximize
+  resampling: smoteenn        # smote | adasyn | random_over | random_under |
+                              # cluster_centroids | smotetomek | smoteenn | null
+  n_jobs: -1
+
+# Post-hoc comparison of scenarios and models (model_analysis_V2 in the thesis).
+doe:
+  cv_folds: 3
+  scoring: [roc_auc, accuracy, f1, recall, precision]
+
+shap:
+  scenario: S5
+  models: [xgb, rf, lr]

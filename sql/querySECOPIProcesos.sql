@@ -1,4 +1,4 @@
-SELECT 
+SELECT
         uid,
         nombre_entidad AS nombre_de_la_entidad, --already updated
         nit_de_la_entidad,
@@ -43,7 +43,7 @@ WHERE
         --AND anno_firma IN ('2018')
         AND cuantia_proceso > 50000000
         AND cuantia_contrato > 50000000
-        AND causal_contratacion_directa NOT IN ('CONTRATOS INTERADMINISTRATIVOS (LITERAL C)', 
+        AND causal_contratacion_directa NOT IN ('CONTRATOS INTERADMINISTRATIVOS (LITERAL C)',
                                                 --'NO DEFINIDO',
                                                 --'PRESTACION DE SERVICIOS PROFESIONALES Y DE APOYO A LA GESTION (LITERAL H)',
                                                 --'URGENCIA MANIFIESTA (LITERAL A)',
@@ -53,7 +53,7 @@ WHERE
                                                 )
         --AND nombre_regimen_de_contratacion != 'REGIMEN ESPECIAL' --already updated (regimen_de_contratacion)
         --AND tipo_de_proceso IN ('LICITACION PUBLICA','LICITACION OBRA PUBLICA')
-        
+
         --QUITAR CONVENIOS INTERADMINISTRATIVOS
         AND detalle_objeto NOT LIKE '%AUNAR%'
         AND detalle_objeto NOT LIKE '%ANUAR%'
@@ -66,25 +66,25 @@ WHERE
         AND detalle_objeto NOT LIKE '%MANTENIMIENTO%RUTINARIO%'
         AND detalle_objeto NOT LIKE '%COMPLEMENTA%ESFUERZOS%INSTITUCIONALES%'
         AND detalle_objeto NOT LIKE '%UNI%ESFUERZOS%'
-        
+
         --PRESTACIÓN DE SERVICIOS, ACTIVIDADES DE GESTIÓN Y CONSULTORIA
         AND detalle_objeto NOT LIKE '%PRESTA%SERVICIO%'
         AND detalle_objeto NOT LIKE '%ADMINISTRACI%N%'
         AND detalle_objeto NOT LIKE '%ELABORACI%N%MANUAL%'
         AND detalle_objeto NOT LIKE '%CONSULTOR%A%'
         AND detalle_objeto NOT LIKE '%ARTICULAR%ESTRATEGIAS%'
-        
+
         --OPERACIONES FINANCIERAS
         AND detalle_objeto NOT LIKE '%COFINANCIA%'
-        
+
         -- DISEÑO, ESTUDIOS E INTERVENTORIA
-        AND detalle_objeto NOT LIKE '%INTERVENTOR%A%' 
-        AND detalle_objeto NOT LIKE '%CONSULTOR%A%' 
+        AND detalle_objeto NOT LIKE '%INTERVENTOR%A%'
+        AND detalle_objeto NOT LIKE '%CONSULTOR%A%'
         AND detalle_objeto NOT LIKE '%ESTUDIO%'
         AND detalle_objeto NOT LIKE '%INTERVENTOR%A%'
         AND detalle_objeto NOT LIKE '%DISEÑO%'
-        AND detalle_objeto NOT LIKE '%DISENO%' 
-        
+        AND detalle_objeto NOT LIKE '%DISENO%'
+
         -- OBRAS COMPLEMENTARIAS Y OTROS TIPOS DE OBRAS
         --AND detalle_objeto NOT LIKE '%ACUEDUCTO%'
         AND detalle_objeto NOT LIKE '%AFECTACIONES%'
@@ -137,13 +137,13 @@ WHERE
         AND detalle_objeto NOT LIKE '%SENALIZACI%N%'
         AND detalle_objeto NOT LIKE '%SUMINISTRO%'
         --AND detalle_objeto NOT LIKE '%URBAN%'
-        
-    
+
+
         --AND (detalle_objeto NOT LIKE '%CONSTRUCCI%N%PUENTE%' OR detalle_objeto LIKE '%PUENTE%NACIONAL%')
         --AND (detalle_objeto NOT LIKE '%SECUNDARIA%' OR detalle_objeto NOT LIKE '%TERCIARIA%')
         --CONTAIN FILTERS
-        --AND (detalle_objeto LIKE '%VIA%' OR detalle_objeto LIKE '%VIAS%' OR detalle_objeto LIKE '%VIAL%' 
-        --AND (detalle_objeto LIKE '%CONSTRUCCI%N%HUELLA%' OR detalle_objeto LIKE '%CONSTRUCCI%N%PLACA%' 
+        --AND (detalle_objeto LIKE '%VIA%' OR detalle_objeto LIKE '%VIAS%' OR detalle_objeto LIKE '%VIAL%'
+        --AND (detalle_objeto LIKE '%CONSTRUCCI%N%HUELLA%' OR detalle_objeto LIKE '%CONSTRUCCI%N%PLACA%'
         --        OR detalle_objeto LIKE '%PLACA%HUELLA%' OR detalle_objeto LIKE '%VEREDA%' OR detalle_objeto LIKE '%RURAL%'
         --        OR detalle_objeto LIKE '%RURALES%' OR detalle_objeto LIKE '%VEREDAL%' OR detalle_objeto LIKE '%VEREDALES%'
           --      OR detalle_objeto LIKE '%TERCIARIA%' OR detalle_objeto LIKE '%TERCEARIA%' OR detalle_objeto LIKE '%TERCI%')

@@ -22,7 +22,7 @@ MANIFEST_FILE="$MANIFEST_DIR/artifacts.sha256"
 MANIFEST_INFO="$MANIFEST_DIR/artifacts.info"
 DIST_DIR="${VERSIONADO_DIST:-dist}"   # p. ej. VERSIONADO_DIST=~/Downloads para no ocupar espacio en Drive
 # Carpetas cuyos archivos ignorados se consideran artefactos de la versión
-ARTIFACT_PATHS=("Data" "Models" "Models V2" "terridata" "Parameters")
+ARTIFACT_PATHS=("Data" "Models" "Models V2" "terridata" "Parameters" "outputs")
 MAX_FILE_MB=50     # bloquea archivos versionados más grandes que esto
 WARN_FILE_MB=10    # avisa por encima de este tamaño
 SEMVER_RE='^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$'
@@ -65,8 +65,13 @@ install_hook() {
   hook="$(git rev-parse --git-path hooks)/pre-commit"
   cat > "$hook" <<'EOF'
 #!/usr/bin/env bash
-# Instalado por scripts/versionado.sh: bloquea commits con secretos o archivos grandes.
-exec bash "$(git rev-parse --show-toplevel)/scripts/versionado.sh" check --staged
+# Instalado por scripts/versionado.sh: bloquea commits con secretos o archivos grandes
+# y, si pre-commit está disponible, ejecuta ruff / nbstripout (.pre-commit-config.yaml).
+root="$(git rev-parse --show-toplevel)"
+bash "$root/scripts/versionado.sh" check --staged || exit 1
+if [ -f "$root/.pre-commit-config.yaml" ] && command -v pre-commit >/dev/null 2>&1; then
+  exec pre-commit run
+fi
 EOF
   chmod +x "$hook"
   log "Hook pre-commit instalado ($hook)"

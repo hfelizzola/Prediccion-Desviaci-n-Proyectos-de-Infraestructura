@@ -1,0 +1,251 @@
+# =============================================================================
+# Data configuration: sources, cleaning rules and feature-engineering parameters.
+# Values reproduce the thesis version (v1.0.0). Change them only in a MAJOR version
+# (results change) and document the change in CHANGELOG.md.
+# =============================================================================
+
+paths:
+  # Raw inputs (API extracts, TerriData, manual corrections). Override with env vars
+  # SECOP_DATA_DIR / SECOP_TERRIDATA_DIR (e.g. a Google Drive folder in Colab).
+  data_dir: Data
+  terridata_dir: terridata
+  # Everything the pipeline generates. Override with SECOP_OUTPUT_DIR.
+  output_dir: outputs
+
+files:
+  secop1_processes: procesosSECOPI.csv
+  secop2_contracts: contratosSECOPII.csv
+  secop2_processes: procesosSECOPII.csv
+  contracts_integrated: contratosSECOP.csv
+  contracts_clean: contratosSECOPCleaned.csv
+  corrections: dataCorrections.xlsx
+  penalties_raw: multas_sanciones_secop.csv
+  penalties_by_buyer: analisis_multas_por_entidad.csv
+  training_table: trainData.csv
+  terridata:
+    - TerriData_DesempenoMunicipal.txt.zip
+    - TerriData_Economia.txt.zip
+    - TerriData_FinanzasPublicas.txt.zip
+
+socrata:
+  domain: www.datos.gov.co
+  timeout: 1000
+  batch_size: 500
+  datasets:
+    secop1_processes: f789-7hwg
+    secop2_contracts: jbjy-vk9h
+    secop2_processes: p6dx-8zbt
+    penalties: 4n4q-k399
+
+# --- SECOP I + SECOP II integration ------------------------------------------
+integration:
+  date_columns: [fecha_firma, fecha_ini_ejec_contrato, fecha_fin_ejec_contrato]
+  business_group_pattern: "CONSORCIO|CONSORSIO|UNION TEMPORAL|CONSORCIOS|UNIÓN TEMPORAL"
+  duration_pattern: '(\d+)\s*(\w+\(.*\))'
+
+# --- Cleaning of the unified contract table -----------------------------------
+cleaning:
+  column_names:
+    uid: uid
+    estado_del_proceso: tenderStatus
+    nombre_de_la_entidad: buyerName
+    nit_de_la_entidad: buyerId
+    departamento_entidad: buyerDepartment
+    municipio_entidad: buyerLocation
+    orden_entidad: buyerLevel
+    modalidad: contractMethodCountryLaw
+    causal_contratacion_directa: direct_contracting_cause
+    objeto_a_contratar: contractCategory
+    tipo_contrato: contractType
+    detalle_objeto: contractDescription
+    cuantia_proceso: tenderValue
+    cuantia_contrato: contractValue
+    valor_total_de_adiciones: contractAditionalValue
+    valor_contrato_con_adiciones: contractTotalValue
+    anno_firma: contractYearSigned
+    fecha_firma: contractDateSigned
+    fecha_ini_ejec_contrato: contractStartDate
+    plazo_de_ejec_del_contrato: contractDuration
+    rango_de_ejec_del_contrato: contractDurationRange
+    tiempo_adiciones_en_dias: additionalTimeDays
+    tiempo_adiciones_en_meses: additionalTimeMonths
+    fecha_fin_ejec_contrato: contractEndDate
+    id_adjudicacion: awardId
+    urlproceso: urlTender
+    identificacion_del_contratista: supplierId
+    nom_razon_social_contratista: supplierName
+    dpto_y_muni_contratista: supplierLocation
+    departamento_proveedor: supplierDepartment
+    base_de_datos: databaseSource
+    es_grupo: isBusinessGroup
+    es_pyme: isSME
+    espostconflicto: isPostConflictContract
+
+  # Contracts removed after manual review (agreements / co-financing).
+  removed_uids:
+    - 17-12-7312505-6645201   # agreement
+    - 17-12-7222328-6566950   # agreement
+    - 15-12-4210058-3886615   # agreement
+    - 18-4-8537252-7766100    # agreement
+    - 15-12-3977166-3689414   # agreement
+    - 15-12-3977324-3689541
+    - 17-12-7300265-6634055
+    - 19-12-9053791-8235792
+    - 18-12-8560016-7790587
+    - 18-12-8778695-7979822
+    - 19-4-10209011-9336255   # co-financing
+
+  # Monthly legal minimum wage (COP) used to express values in minimum wages (Mw).
+  minimum_wage:
+    2014: 616000
+    2015: 644350
+    2016: 689455
+    2017: 737717
+    2018: 781242
+    2019: 828116
+    2020: 877803
+    2021: 908526
+    2022: 1000000
+    2023: 1160000
+    2024: 1300000
+
+  duration_units:
+    "DIA(S)": DIAS
+    D: DIAS
+    "MES(ES)": MESES
+    M: MESES
+    "SEMANA(S)": SEMANAS
+  days_per_unit:
+    DIAS: 1
+    MESES: 30
+    SEMANAS: 7
+  days_per_month: 30
+
+  buyer_level:
+    TERRITORIAL: TERRITORIAL
+    NACIONAL: NATIONAL
+    CORPORACION AUTONOMA: AUTONOMOUS CORPORATION
+    NO DEFINIDO: NOT DEFINED
+  buyer_department_aliases:
+    DISTRITO CAPITAL DE BOGOTA: BOGOTA D.C.
+  supplier_department_aliases:
+    DISTRITO CAPITAL DE BOGOTA: BOGOTA D.C.
+    RUSE: NO DEFINIDO
+
+  regions:
+    AMAZONIA: [AMAZONAS, CAQUETA, PUTUMAYO, GUAINIA, GUAVIARE, VAUPES]
+    ORINOQUIA: [META, ARAUCA, CASANARE, VICHADA]
+    ANDINA: [ANTIOQUIA, BOYACA, CALDAS, CUNDINAMARCA, HUILA, NORTE DE SANTANDER,
+             QUINDIO, RISARALDA, SANTANDER, TOLIMA, BOGOTA D.C.]
+    CARIBE: [ATLANTICO, BOLIVAR, CESAR, CORDOBA, LA GUAJIRA, MAGDALENA, SUCRE,
+             "SAN ANDRES, PROVIDENCIA Y SANTA CATALINA"]
+    PACIFICA: [CAUCA, VALLE DEL CAUCA, CHOCO, NARINO]
+  default_region: OTHER
+
+  # Applied in order; a later match overrides an earlier one (as in v1).
+  contract_method_rules:
+    - [OPEN, "LICITACION|SUBASTA"]
+    - [SIMPLIFIED, "SELECCION ABREVIADA"]
+    - [LIMITED, "MINIMA CUANTIA"]
+    - [CLOSED, "CONTRATACION DIRECTA"]
+    - [SPECIAL REGIME, "REGIMEN ESPECIAL"]
+  contract_method_default: OTHER
+  contract_method_order: [OPEN, SIMPLIFIED, LIMITED, CLOSED, SPECIAL REGIME, OTHER]
+
+  business_group_true_pattern: "TRUE|SI"
+  post_conflict_true_pattern: "1|SI"
+  sme_values:
+    NO DEFINIDO: NOT DEFINED
+    "NO": "NO"
+    SI: "YES"
+
+# --- Penalties (SECOP fines and sanctions) ------------------------------------
+penalties:
+  start_year: 2014
+  end_year: 2024
+  recent_window_years: 2
+
+# --- Feature engineering ------------------------------------------------------
+features:
+  bid_ratio: {min: 0.7, max: 1.3}           # exclusive bounds
+  cost_deviation: {min: 0.0, max: 0.5}      # inclusive bounds (legal cap on additions)
+  cost_deviation_levels: {low_max: 0.05, medium_max: 0.20}
+  duration_days: {min: 30, max: 1800}       # min inclusive, max exclusive (5 x 360 days)
+
+  outliers:
+    # frozen_v1: drop the contracts the thesis Isolation Forest removed (it had no seed,
+    #            so the list is frozen in configs/frozen/v1_outlier_uids.csv).
+    # isolation_forest: refit the detector with the parameters below.
+    method: frozen_v1
+    frozen_uids_file: configs/frozen/v1_outlier_uids.csv
+    contamination: 0.01
+    random_state: null
+    columns: [buyerDepartment, buyerLevel, isBusinessGroup, isSME, contractYearSigned,
+              supplierDepartment, tenderValueMw, contractValueMw, contractAditionalValueMw,
+              contractTotalValueMw, contractDurationDays, contractAditionalDuration,
+              contractTotalDuration, haveCostDeviation, haveTimeDeviation,
+              haveTimeAndCostDeviation, projectIntensityMw, awardGrowth, costDeviationPerc,
+              timeDeviationPerc, buyerRegion, contractMethodType, supplierRegion,
+              bidContractRatio]
+
+  buyer_department_aliases:
+    BOGOTA D.C.: BOGOTA
+  buyer_location_aliases:
+    BOGOTA D.C.: BOGOTA
+    SAN JOSE DE CUCUTA: CUCUTA
+    VILLA GARZON/VILLA AMAZONICA: VILLAGARZON
+    PAEZ/BELALCAZAR: PAEZ
+
+  electoral_years: [2010, 2014, 2018, 2022]       # presidential elections
+  preelectoral_years: [2009, 2013, 2017, 2021]
+
+  # Keyword patterns on the contract description. Assigned in this order; a later
+  # match overrides an earlier one. Contracts matching none are "Others".
+  work_categories:
+    Construction: "CONSTRUCCION|PAVIMENTACION|COSNTRUCCION|COSNTRUCCION|CONTRUCCION|CONSTRUIR|ADECUACUACION|EDIFICACION|EDIFICAR|ADECUAR|CONSTRUCION"
+    Maintenance: "MANTENIMIENTO|MANTEMIENTO|MANTENER|MANTEMIENTO|MATENIMIENTO|MANTANIMIENTO|MANTENIIENTO|MATENIMIENTO|MANTANIMIENTO|MANTANIMIENTO|MANTENIIENTO"
+    Rehabilitation: "REHABILITACION|REHABILITAR|REHABLITACION|RECUPERACION|REHABLITACION|REPARACION|REPARAR"
+    Improvement: "MEJORAMIENTO|MEJORAR|MEJORAMENTO|MEJORAMAIENTO|MEKJORAMIENTO|MEJORAMAIENTO|MEJORAMENTO|MEKJORAMIENTO|MEJORAMENTO|OPTIMIZACION|AMPLIACION|EXPANSION|EXPANDIR|OPTIMIZAR|AMPLIAR"
+  work_category_default: Others
+
+  terridata:
+    separator: "|"
+    management_indicators:
+      - GOBIERNO ABIERTO Y TRANSPARENCIA
+      - EJECUCION DE RECURSOS
+      - MOVILIZACION DE RECURSOS
+      - COMPONENTE DE GESTION
+      - COMPONENTE DE RESULTADOS
+      - POSICION NACIONAL EN GESTION
+      - POSICION NACIONAL EN RESULTADOS
+    management_added_years: [2013, 2014, 2015, 2023, 2024]
+    economic_indicators:
+      - PIB
+      - PIB PER CAPITA
+      - PIB PER CAPITA COMO PORCENTAJE DEL PROMEDIO NACIONAL
+      - PIB POR ACTIVIDADES ECONOMICAS - CONSTRUCCION (CONSTRUCCION)
+    economic_years: {start: 2013, end: 2024}
+    economic_added_years: [2024]
+    rename:
+      COMPONENTE DE GESTION: managementComponent
+      COMPONENTE DE RESULTADOS: resultsComponent
+      POSICION NACIONAL EN GESTION: nationalManagementPosition
+      POSICION NACIONAL EN RESULTADOS: nationalResultsPosition
+      MOVILIZACION DE RECURSOS: resourceMobilization
+      EJECUCION DE RECURSOS: resourceExecution
+      GOBIERNO ABIERTO Y TRANSPARENCIA: openGovernmentTransparency
+      PIB: gdp
+      PIB PER CAPITA: gdpPerCapita
+      PIB PER CAPITA COMO PORCENTAJE DEL PROMEDIO NACIONAL: gdpPerCapitaNationalAvgPercent
+      PIB POR ACTIVIDADES ECONOMICAS - CONSTRUCCION (CONSTRUCCION): gdpByEconomicActivityConstruction
+
+  # Final column names of the training table.
+  rename:
+    tenderValueMw: prebidValueMw
+    buyerLevel: ownerLevel
+    buyerDepartment: ownerDepartment
+    buyerRegion: ownerRegion
+    hhi_num_anio_anterior: histHHINumProject
+    hhi_valor_anio_anterior: histHHIValueProject
+    supplierDepartment: contractorDepartment
+    supplierRegion: contractorRegion

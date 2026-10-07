@@ -34,6 +34,7 @@ accidental de código.
 | M13 | **Deflactación con salario mínimo.** El SMMLV crece por encima de la inflación (16% en 2023), lo que mezcla crecimiento real con precios. | `ETL.ipynb`, celda 105 | Comparabilidad entre años |
 | M14 | **Grupo G3 (contratista) débil**: solo `isSME`, `isBusinessGroup` y departamento. Falta el desempeño histórico del contratista y de los integrantes de consorcios. `Data/entity_resolution.py` existe pero no está integrado. | — | Pregunta de investigación 2 subatendida |
 | M15 | **Cruce con TerriData por nombre** de departamento y municipio, sin códigos DIVIPOLA ni reporte de la tasa de cruce. | `featureEngineering_V2.ipynb`, celdas 81-85 | Faltantes silenciosos |
+| M16 | **`uid` duplicados que se multiplican** *(hallado en la Fase 1)*. `contratosSECOPCleaned.csv` tiene `uid` repetidos (42 en la muestra filtrada). La unión del HHI por `uid` convierte *k* copias en *k²* filas: 28.378 contratos se vuelven 28.458 filas en `trainData.csv` (80 duplicados). | `features/owner.py` (`add_owner_features`) | Observaciones repetidas, posible fuga entre train y test |
 
 ### 1.2 Reproducibilidad e ingeniería
 
@@ -98,18 +99,20 @@ accidental de código.
 - [x] `.gitignore`, `.gitattributes`, hook pre-commit, `scripts/versionado.sh`.
 - [x] Manifiesto SHA-256 de datos y modelos; tag `v1.0.0`.
 - [x] Push a GitHub privado (`hfelizzola/Prediccion-Desviaci-n-Proyectos-de-Infraestructura`).
-- [ ] Subir `dist/v1.0.0-artifacts.tar.gz` como asset del release (o a Zenodo con acceso restringido).
+- [x] Subir `v1.0.0-artifacts.tar.gz` como asset del release `v1.0.0` en GitHub.
 - [x] Rotar la contraseña de datos.gov.co (estuvo en texto plano en Drive).
 
 ### Fase 1 — Fundaciones de ingeniería → `v1.1.0` (sin cambiar resultados)
-- [ ] `pyproject.toml` con dependencias mínimas y versiones fijadas (incluido `pandas<3` mientras exista `select_dtypes(['object'])`), lock con `uv`. Entorno idéntico en local y en Colab (`uv pip install -e .`).
-- [ ] Mover los notebooks originales a `notebooks/tesis_v1/` (con `git mv`, para conservar la historia).
-- [ ] Crear `src/secop_dev/` y trasladar la lógica **tal cual** (ETL, limpieza, variables, entrenamiento) a funciones puras y tipadas.
-- [ ] `configs/*.yaml` para todos los números mágicos: años, umbrales (0,7–1,3; 50%; 30 días–5 años; 1000 SMMLV; ≥5 contratos), listas de exclusión y semillas.
-- [ ] **Prueba de regresión**: `build_features` debe reproducir `Data/trainData.csv` de la v1 (comparación con `pandas.testing.assert_frame_equal`) y `train` debe reproducir las métricas de `Data/metrics_*.xlsx` dentro de una tolerancia.
-- [ ] `ruff` (lint y formato), `pre-commit` con `nbstripout` (los notebooks nuevos se guardan sin salidas) y `pytest`.
-- [ ] `logging` en lugar de `print`; resultados como `params.json` + `metrics.csv` + modelo, con hash de la configuración y del commit.
-- [ ] Colab: `git clone` del repo + datos desde Drive, en lugar de `os.chdir` a la carpeta.
+- [x] `pyproject.toml` con dependencias fijadas a las versiones de la tesis (pandas 2.2.2, scikit-learn 1.6.1, xgboost 2.1.4, optuna 4.3.0, shap 0.47.2…) y `uv.lock`. Colab instala exactamente el lock (`uv sync --frozen`, Python 3.11).
+- [x] Notebooks y scripts originales en `notebooks/tesis_v1/` (con `git mv`); consultas en `sql/`; tablas LaTeX en `reports/tesis_v1/`.
+- [x] Paquete `src/secop_dev/` en inglés: `data/` (extracción, integración, limpieza, multas, TerriData), `features/`, `models/`, `analysis/` (ANOVA, SHAP, comparación con v1) y CLI `secop-dev`.
+- [x] `configs/data.yaml`, `features.yaml` y `experiments.yaml` con todos los parámetros de la tesis.
+- [x] **Prueba de regresión de datos**: el paquete reproduce **exactamente** `contratosSECOP.csv`, `contratosSECOPCleaned.csv`, `analisis_multas_por_entidad.csv` y `trainData.csv` (`pytest -m regression`). Los atípicos del Isolation Forest sin semilla quedaron congelados en `configs/frozen/v1_outlier_uids.csv`.
+- [ ] **Reproducción de métricas**: correr `notebooks/colab_pipeline.ipynb` (RF, XGBoost y KNN) y revisar `comparison_v1.csv`; luego `snapshot v1.1.0`. La regresión logística ya se verificó localmente: 9 de 10 combinaciones idénticas a la tesis y *costo/S4* a ≤ 0,22 puntos (orden de variables).
+- [x] `ruff`, `pytest` (24 pruebas), `.pre-commit-config.yaml` con `nbstripout`; el hook de `versionado.sh` los ejecuta si `pre-commit` está disponible.
+- [x] `logging`; cada corrida guarda modelo, `best_params.json`, `metrics.json`, `trials.csv` y `run_metadata.json` (commit, hash de configuración, versiones). Entrenamiento reanudable.
+- [x] Colab: `notebooks/colab_pipeline.ipynb` clona el repo, instala el lock y lee los datos de Drive.
+- [x] Multas vectorizadas (de bucle fila a fila a búsqueda binaria, resultado idéntico).
 
 ### Fase 2 — Pipeline de datos reproducible → `v1.2.0`
 - [ ] Extracción paginada (`$limit`/`$offset`) con snapshot fechado en `data/raw/<fecha>/` y metadatos (fecha, consulta, número de registros, hash).
@@ -118,13 +121,14 @@ accidental de código.
 - [ ] Validación de esquemas con `pandera` (tipos, rangos, unicidad de `uid`, tasas de cruce mínimas).
 - [ ] Tabla de **flujo de la muestra** (estilo CONSORT): registros extraídos → tras cada filtro → muestra final, por fuente y año.
 - [ ] DAG con DVC (`dvc repro`) o Makefile: un comando regenera todo. DVC con remoto en Google Drive reemplaza al manifiesto manual.
-- [ ] Vectorizar `analizar_multas` y `calcular_historico` (`groupby` + `merge_asof`).
+- [ ] Vectorizar `cumulative_history` (`groupby` + `merge_asof`); hoy toma ~45 s de los ~50 s de `secop-dev features`.
 
 ### Fase 3 — Corrección metodológica → `v2.0.0` (cambian los resultados)
 Cada punto va en su propio commit `exp(...)`, con una tabla de sensibilidad frente a la v1.
 - [ ] **M1**: detección de atípicos solo con variables ex ante, con semilla fija; reportar la sensibilidad con y sin el filtro.
 - [ ] **M2 / M3**: indicadores históricos *as-of*: solo contratos **terminados** antes de la fecha de firma del contrato focal (`merge_asof` por fecha). Imputación con el último valor disponible ≤ t-1 (sin información futura) y dentro del pipeline.
 - [ ] **M11**: histórico, HHI y multas indexados por NIT normalizado, no por nombre.
+- [ ] **M16**: deduplicar contratos por `uid` (regla documentada) antes de construir variables; unir por claves únicas.
 - [ ] **M12**: calendario electoral nacional y local + ventana de la Ley de Garantías (4 meses antes de cada elección).
 - [ ] **M13**: precios constantes con un índice de costos de construcción (ICOCED/ICCP, DANE); SMMLV como análisis de robustez.
 - [ ] **M15**: cruces con TerriData por código DIVIPOLA, reportando la tasa de cruce.
