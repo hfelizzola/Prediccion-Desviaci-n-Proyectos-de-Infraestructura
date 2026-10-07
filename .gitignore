@@ -1,0 +1,62 @@
+# =============================================================================
+# .gitignore — Predicción de desviaciones en tiempo y costo (SECOP)
+# Política: el código, las consultas y los resultados pequeños van en git.
+# Los datos crudos/intermedios, modelos y valores SHAP quedan fuera y se
+# versionan con MANIFEST/artifacts.sha256 (ver scripts/versionado.sh).
+# =============================================================================
+
+# --- Secretos ---------------------------------------------------------------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# --- Datos: se ignora todo y se permiten solo archivos pequeños curados -------
+Data/*
+!Data/*.txt
+!Data/*.py
+!Data/dataCorrections.xlsx
+!Data/metrics_*.xlsx
+!Data/*_best_params.xlsx
+!Data/doe_results_*.csv
+
+terridata/*
+!terridata/Indicadores Territoriales.xlsx
+
+# --- Modelos y artefactos de interpretabilidad -------------------------------
+Models/
+Models V2/
+models/
+*.joblib
+*.pkl
+*.pickle
+
+# --- Distribución de artefactos (generado por scripts/versionado.sh) --------
+dist/
+
+# --- Logs --------------------------------------------------------------------
+*.log
+logs/
+catboost_info/
+mlruns/
+
+# --- Python ------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+*.egg-info/
+
+# --- Sistema operativo y Google Drive ---------------------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+Icon?
+~$*
+.~lock.*
+*.tmp

@@ -1,0 +1,21 @@
+\begin{table}[htbp]
+\centering
+\caption{Resultados ANOVA para métricas de desempeño por factores}
+\label{tab:anova_metrics}
+\begin{tabular}{lc}
+\toprule
+C(model) & C(setting) \\
+\midrule
+test\_accuracy & 10.070 (< 0.001***) & 60.845 (< 0.001***) \\
+test\_f1 & 7.791 (< 0.001***) & 49.816 (< 0.001***) \\
+test\_precision & 9.610 (< 0.001***) & 117.475 (< 0.001***) \\
+test\_recall & 8.310 (< 0.001***) & 2.822 (0.034*) \\
+test\_roc\_auc & 10.653 (< 0.001***) & 216.086 (< 0.001***) \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\small
+\item Nota: *** p < 0.001, ** p < 0.01, * p < 0.05
+\item F-estadístico (p-valor) para cada factor y métrica
+\end{tablenotes}
+\end{table}

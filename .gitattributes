@@ -1,0 +1,15 @@
+# Normalización de fin de línea (el repo vive en Windows/Drive y se usa en Colab/Linux)
+* text=auto
+*.sh text eol=lf
+*.py text
+*.sql text
+*.md text
+*.ipynb text
+
+# Binarios: sin diff de texto ni conversión de fin de línea
+*.xlsx binary
+*.zip binary
+*.joblib binary
+*.pkl binary
+*.png binary
+*.pdf binary

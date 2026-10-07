@@ -1,0 +1,21 @@
+\begin{table}[htbp]
+\centering
+\caption{Niveles de significancia estadística por métrica y factor}
+\label{tab:anova_significance}
+\begin{tabular}{lc}
+\toprule
+C(model) & C(setting) \\
+\midrule
+test\_accuracy & *** & *** \\
+test\_f1 & *** & *** \\
+test\_precision & *** & *** \\
+test\_recall & *** & * \\
+test\_roc\_auc & *** & *** \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\small
+\item Nota: *** p < 0.001, ** p < 0.01, * p < 0.05
+\item F-estadístico (p-valor) para cada factor y métrica
+\end{tablenotes}
+\end{table}

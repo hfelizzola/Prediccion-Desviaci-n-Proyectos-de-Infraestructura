@@ -1,0 +1,1 @@
+{"n_neighbors": 27, "weights": "distance", "metric": "manhattan", "algorithm": "kd_tree", "leaf_size": 69}

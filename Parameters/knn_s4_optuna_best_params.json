@@ -1,0 +1,1 @@
+{"n_neighbors": 15, "weights": "uniform", "metric": "manhattan", "algorithm": "ball_tree", "leaf_size": 54}

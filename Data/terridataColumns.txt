@@ -1,0 +1,5 @@
+managementComponent(G4)
+openGovernmentTransparency(G4)
+gdp(G4)
+gdpPerCapita(G4)
+gdpByEconomicActivityConstruction(G4)

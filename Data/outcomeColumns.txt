@@ -1,0 +1,5 @@
+haveCostDeviation(G5)
+haveTimeDeviation(G5)
+haveTimeAndCostDeviation(G5)
+costDeviationPerc(G5)
+timeDeviationPerc(G5)

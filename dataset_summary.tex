@@ -1,0 +1,54 @@
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{lcccccccccccc}
+\toprule
+Variable & Count & Mean & Std & Min & Q1 & Median & Q3 & Max & Missing & Missing\textbackslash{}% & Skewness & Kurtosis \\
+\midrule
+age & 1000 & 49.857 & 18.114 & 18 & 35 & 50 & 66 & 79 & 0 & 0 & -0.066 & -1.162 \\
+income & 950 & 50850.811 & 16003.428 & -3523.079 & 40812.061 & 51354.035 & 61541.378 & 97616.632 & 50 & 5 & -0.103 & 0.121 \\
+education\textbackslash{}_years & 1000 & 13.559 & 3.449 & 8 & 11 & 14 & 16 & 19 & 0 & 0 & 0.007 & -1.197 \\
+credit\textbackslash{}_score & 970 & 701.673 & 99.537 & 398.049 & 636.449 & 700.525 & 765.841 & 1092.624 & 30 & 3 & 0.055 & 0.258 \\
+\bottomrule
+\end{tabular}
+\caption{Resumen Estadístico - Variables Numéricas}
+\label{tab:numeric_summary}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{lccccccc}
+\toprule
+Variable & Count & Unique & Mode & Mode Freq & Mode Freq\textbackslash{}% & Missing & Missing\textbackslash{}% \\
+\midrule
+gender & 1000 & 2 & Female & 516 & 51.6 & 0 & 0 \\
+employment\textbackslash{}_status & 1000 & 3 & Employed & 717 & 71.7 & 0 & 0 \\
+\bottomrule
+\end{tabular}
+\caption{Resumen Estadístico - Variables Categóricas}
+\label{tab:categorical_summary}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{lc}
+\toprule
+Statistic & Value \\
+\midrule
+Count & 1000 \\
+Mean & 0.694 \\
+Std & 0.461 \\
+Min & 0 \\
+Q1 & 0 \\
+Median & 1 \\
+Q3 & 1 \\
+Max & 1 \\
+Missing & 0 \\
+Missing\textbackslash{}% & 0 \\
+\bottomrule
+\end{tabular}
+\caption{Resumen de Variable Objetivo - loan_approved}
+\label{tab:target_summary}
+\end{table}

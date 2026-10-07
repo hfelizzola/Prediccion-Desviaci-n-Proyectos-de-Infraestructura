@@ -1,0 +1,4 @@
+isSME(G3)
+isBusinessGroup(G3)
+contractorDepartment(G3)
+contractorRegion(G3)
