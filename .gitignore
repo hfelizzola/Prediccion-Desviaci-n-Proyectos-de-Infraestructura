@@ -35,6 +35,9 @@ models/
 # --- Distribución de artefactos (generado por scripts/versionado.sh) --------
 dist/
 
+# --- Salidas del pipeline (secop-dev): datos generados, corridas, SHAP -------
+outputs/
+
 # --- Logs --------------------------------------------------------------------
 *.log
 logs/
