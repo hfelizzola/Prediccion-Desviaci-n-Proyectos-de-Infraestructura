@@ -97,7 +97,7 @@ accidental de código.
 - [x] Eliminar credenciales del código (variables de entorno).
 - [x] `.gitignore`, `.gitattributes`, hook pre-commit, `scripts/versionado.sh`.
 - [x] Manifiesto SHA-256 de datos y modelos; tag `v1.0.0`.
-- [ ] Push a GitHub privado (`versionado.sh remote <url>` + `publish`).
+- [x] Push a GitHub privado (`hfelizzola/Prediccion-Desviaci-n-Proyectos-de-Infraestructura`).
 - [ ] Subir `dist/v1.0.0-artifacts.tar.gz` como asset del release (o a Zenodo con acceso restringido).
 - [ ] **Rotar la contraseña de datos.gov.co**: estuvo en texto plano en Drive.
 
