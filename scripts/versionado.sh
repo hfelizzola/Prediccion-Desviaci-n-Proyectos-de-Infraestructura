@@ -13,7 +13,7 @@
 # =============================================================================
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+ROOT="${VERSIONADO_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 cd "$ROOT"
 
 MAIN_BRANCH="main"
@@ -48,7 +48,23 @@ require_repo() { [[ -e .git ]] || die "No hay repositorio git en $ROOT. Ejecuta:
 
 current_branch() { git symbolic-ref --short HEAD 2>/dev/null || echo "(detached)"; }
 
+# Cambiar de rama puede reescribir este mismo archivo mientras bash lo está leyendo (en
+# Windows/Google Drive el reemplazo incluso falla). Esos comandos corren desde una copia.
+run_from_copy() {
+  if [[ -z "${VERSIONADO_COPY:-}" ]]; then
+    local copy
+    copy="$(mktemp "${TMPDIR:-/tmp}/versionado.XXXXXX")"
+    cp "${BASH_SOURCE[0]}" "$copy"
+    VERSIONADO_COPY="$copy" VERSIONADO_ROOT="$ROOT" exec bash "$copy" "$@"
+  fi
+  trap 'rm -f "$VERSIONADO_COPY"' EXIT
+}
+
+# Google Drive cambia las fechas de los archivos al sincronizar; git las confunde con cambios.
+refresh_index() { git update-index -q --refresh >/dev/null 2>&1 || true; }
+
 require_clean() {
+  refresh_index
   [[ -z "$(git status --porcelain)" ]] || die "Hay cambios sin guardar. Usa 'save' antes de continuar."
 }
 
@@ -101,6 +117,9 @@ cmd_init() {
   # LF en la copia de trabajo: evita reescrituras CRLF en Drive y diffs falsos frente a Colab/Linux
   git config core.autocrlf false
   git config core.eol lf
+  # Google Drive reescribe metadatos de los archivos: comparar solo tamaño y fecha de modificación
+  git config core.trustctime false
+  git config core.checkStat minimal
   git config user.name >/dev/null || die "Configura tu nombre: git config --global user.name \"Tu Nombre\""
   git config user.email >/dev/null || die "Configura tu correo: git config --global user.email tu@correo"
   install_hook
@@ -253,6 +272,7 @@ cmd_finish() {
   [[ "$branch" != "$MAIN_BRANCH" ]] || die "Ya estás en $MAIN_BRANCH; 'finish' se usa desde una rama de trabajo"
   require_clean
   git switch "$MAIN_BRANCH"
+  refresh_index
   git merge --no-ff "$branch" -m "merge: $branch"
   log "$branch integrada en $MAIN_BRANCH. Para borrarla: git branch -d $branch"
 }
@@ -311,6 +331,7 @@ EOF
 main() {
   local cmd="${1:-ayuda}"
   shift || true
+  case "$cmd" in branch|finish) run_from_copy "$cmd" "$@" ;; esac
   case "$cmd" in
     init)      cmd_init "$@" ;;
     remote)    cmd_remote "$@" ;;
