@@ -1,4 +1,4 @@
-SELECT 
+SELECT
     id_del_portafolio AS id_proceso,
     precio_base AS cuantia_proceso,
     valor_total_adjudicacion AS cuantia_contrato,
@@ -10,7 +10,7 @@ SELECT
     fecha_adjudicacion,
     adjudicado,
     estado_resumen
-WHERE  
+WHERE
     id_proceso IN ({list_id_proceso})
     AND estado_resumen = 'Adjudicado'
     AND valor_total_adjudicacion IS NOT NULL
